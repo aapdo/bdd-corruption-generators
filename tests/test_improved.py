@@ -46,7 +46,8 @@ def test_blur_reaches_actual_pixel_targets(flow_speed):
 
 def test_glare_hood_is_not_emitter_and_no_black_center():
     rgb,d,K,light=fixture();rgb[-5:,20:30]=[255,0,0]
-    sources=sources_for_frame(rgb,light,None)
+    light.update(controlled_sun_eligible=True,sun_eligibility_evidence='synthetic_day_sky',scene_regime='day')
+    sources=sources_for_frame(rgb,light,None,allow_controlled_sun=True)
     assert sources[0]['type']=='controlled_off_frame_sun' and not sources[0]['verified']
     assert sources[0]['xy'][0]<0 or sources[0]['xy'][0]>rgb.shape[1]
     old=0.
@@ -69,15 +70,15 @@ def test_rain_coordinate_exposure_and_occlusion(tmp_path):
     original=tmp_path/'raw.xml';original.write_text(xml)
     # Forward camera speed10m/s was already present; replacing by the same twist is identity.
     same=tmp_path/'same.xml';motion=[dict(twist=np.array([0.,0.,-10.,0.,0.,0.]))]
-    correct_stream(original,same,motion,[36.])
+    correct_stream(original,same,motion,[36.],diagnostic=True)
     p=list(parse(same).getroot()[0])[0]
     assert np.allclose(vector(p.attrib['wp2']),[0.,-.03,-9.97],atol=1e-7)
     lateral=tmp_path/'lateral.xml';motion[0]['twist']=np.array([1.,0.,0.,0.,0.,0.])
-    correct_stream(original,lateral,motion,[36.])
+    correct_stream(original,lateral,motion,[36.],diagnostic=True)
     p=list(parse(lateral).getroot()[0])[0]
     assert np.allclose(vector(p.attrib['wp2']),[.003,-.03,-10],atol=1e-7)
     blocked=tmp_path/'blocked.xml'
-    q=correct_stream(original,blocked,motion,[36.],depths=[np.ones((360,640),np.float32)])
+    q=correct_stream(original,blocked,motion,[36.],depths=[np.ones((360,640),np.float32)],diagnostic=True)
     assert len(parse(blocked).getroot()[0])==0 and q['removed_invalid']==1
     assert not q['full_upstream_6DoF_resimulation']
 
@@ -120,6 +121,7 @@ def test_invalid_rain_depth_preserves_original():
 def test_controlled_sun_color_is_linear():
     from baseline_render import srgb_to_linear
     rgb,d,K,light=fixture();light['airlight_srgb']=[.5,.5,.5]
-    sources=sources_for_frame(rgb,light)
+    light.update(controlled_sun_eligible=True,sun_eligibility_evidence='synthetic_day_sky',scene_regime='day')
+    sources=sources_for_frame(rgb,light,allow_controlled_sun=True)
     assert sources[0]['color_space']=='linear_RGB'
     assert np.allclose(sources[0]['color'],srgb_to_linear(np.array([.5,.5,.5])))

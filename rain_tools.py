@@ -12,6 +12,7 @@ def main():
     a=sub.add_parser('export-patch');a.add_argument('--upstream',type=Path,required=True);a.add_argument('--output',type=Path,required=True)
     a=sub.add_parser('correct');a.add_argument('--input',type=Path,required=True);a.add_argument('--output',type=Path,required=True)
     a.add_argument('--motion',type=Path,required=True);a.add_argument('--depths',type=Path,help='Optional N x H x W camera-z NPY')
+    a.add_argument('--diagnostic',action='store_true',help='Explicitly allow unqualified motion; never marks data RELEASED')
     a=sub.add_parser('compose');a.add_argument('--image',type=Path,required=True);a.add_argument('--depth',type=Path,required=True)
     a.add_argument('--layers',type=Path,required=True);a.add_argument('--rate',type=float,required=True);a.add_argument('--output',type=Path,required=True)
     a=p.parse_args()
@@ -30,15 +31,18 @@ def main():
     from rain_adapter import correct_stream,compose_rain
     if a.mode=='correct':
         data=json.loads(a.motion.read_text());depths=np.load(a.depths,allow_pickle=False)if a.depths else None
-        q=correct_stream(a.input,a.output,data['motions'],data['base_speeds_kmh'],depths=depths)
+        q=correct_stream(a.input,a.output,data['motions'],data['base_speeds_kmh'],depths=depths,
+            render_exposure_indices=data.get('render_exposure_indices'),diagnostic=a.diagnostic)
     else:
         import cv2
         from PIL import Image
         from appearance import lighting_profile
-        rgb=cv2.resize(np.asarray(Image.open(a.image).convert('RGB')),(640,360),interpolation=cv2.INTER_CUBIC)
-        d=cv2.resize(np.load(a.depth,allow_pickle=False).astype(np.float32),(640,360))
+        from input_validation import aligned_depth
+        from sample_io import write_sample
+        raw=np.asarray(Image.open(a.image).convert('RGB'));rgb=cv2.resize(raw,(640,360),interpolation=cv2.INTER_CUBIC)
+        d=aligned_depth(np.load(a.depth,allow_pickle=False),raw.shape)
         with np.load(a.layers,allow_pickle=False)as layers:out,q=compose_rain(rgb,d,layers['rainy'],layers['fogged'],layers['mask'],lighting_profile([(rgb,d)]),a.rate)
-        Image.fromarray(out).save(a.output,quality=95,subsampling=0)
+        q.update(training_release_ready=False,quality_state='GENERATED');write_sample(a.output,out,q);return
     with a.output.with_suffix('.json').open('x')as f:json.dump(q,f,indent=2,allow_nan=False)
 
 

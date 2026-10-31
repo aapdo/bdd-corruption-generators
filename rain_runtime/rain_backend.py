@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import sys
 import types
+from rain_binding import validate_render_binding
 
 SOURCE = Path(__file__).resolve().parents[1]
 CONTRACT = json.loads((SOURCE/'rain_settings.json').read_text())
@@ -70,7 +71,7 @@ def simulate(output, rate, inputs):
         left_fraction=left/max(1, left+right), upstream_particle_simulator=True))
 
 
-def render(output, rate, inputs):
+def render(output, rate, inputs,diagnostic=False):
     import cv2
     import numpy as np
     from common import db
@@ -78,6 +79,7 @@ def render(output, rate, inputs):
     cv2.setNumThreads(1)
     sim = json.loads((output/'simulations'/str(rate)/'SIMULATED.json').read_text())
     if sha(sim['path']) != sim['sha256']: raise ValueError('Particle stream changed')
+    binding=validate_render_binding(sim,inputs,diagnostic=diagnostic)
     settings = options(rate, inputs['speeds_kmh']); video = inputs['video']; n = len(inputs['samples'])
     db.dbs['bdd_static_sweep'] = types.SimpleNamespace(settings=lambda: settings)
     args = types.SimpleNamespace(conflict_strategy='skip', rendering_strategy=None,
@@ -98,12 +100,12 @@ def render(output, rate, inputs):
         if image is None or image.shape != (360, 640, 3): raise ValueError('Rain shape differs')
         result.append(dict(image_id=sample['image_id'], path=str(path), sha256=sha(path), bytes=path.stat().st_size))
     save(output/('RENDER_'+str(rate)+'.json'), dict(samples=result, simulation=sim,
-        upstream_PBR_renderer=True, exposure_ms=3, full_video_temporal_qualified=False))
+        upstream_PBR_renderer=True, exposure_ms=3, full_video_temporal_qualified=False,render_binding=binding))
 
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser(); p.add_argument('stage', choices=['simulate', 'render'])
-    p.add_argument('output', type=Path); p.add_argument('rate', type=int); a = p.parse_args()
+    p.add_argument('output', type=Path); p.add_argument('rate', type=int);p.add_argument('--diagnostic',action='store_true'); a = p.parse_args()
     inputs = json.loads((a.output/'RAIN_INPUTS.json').read_text())
     if a.stage == 'simulate': simulate(a.output, a.rate, inputs)
-    else: render(a.output, a.rate, inputs)
+    else: render(a.output, a.rate, inputs,diagnostic=a.diagnostic)

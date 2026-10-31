@@ -1,6 +1,7 @@
 """Persistent state sharing for a severity sweep."""
 import copy
 import math
+import time
 def advance_snow(renderer, pose, timestamp, twist=None):
     """Identical particle-only prefix of SnowRenderer.render, with no image work."""
     timestamp, elapsed = renderer.clock.check(timestamp)
@@ -14,11 +15,13 @@ def advance_snow(renderer, pose, timestamp, twist=None):
     renderer._time = timestamp-renderer._origin_time
     renderer.clock.last = timestamp
 
-def snow_levels(renderer, image, depth, pose, timestamp, levels, twist=None):
+def snow_levels(renderer, image, depth, pose, timestamp, levels, twist=None,sky_mask=None):
     results = []
     for level in levels:
-        trial = copy.deepcopy(renderer)
-        value = trial.render(image, depth, pose, level, timestamp, camera_twist=twist)
+        start=time.perf_counter();trial = copy.deepcopy(renderer);copied=time.perf_counter()-start
+        start=time.perf_counter();kwargs={}if sky_mask is None else dict(sky_mask=sky_mask)
+        value = trial.render(image, depth, pose, level, timestamp, camera_twist=twist,**kwargs)
+        value['qa'].update(state_copy_seconds=copied,render_seconds=time.perf_counter()-start)
         results.append((value, trial.state_fingerprint()))
     if len({h for _, h in results}) != 1:
         raise ValueError('Severity changed particle population or trajectory')
