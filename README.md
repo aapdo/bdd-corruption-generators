@@ -1,5 +1,12 @@
 # BDD Corruption Generators
 
+2026-11-01 추가: [Flare7K* PGS 생성 후 선별](FLARE7KSTAR.md)은 별도 경로입니다.
+기존 광원 적합성 필터를 사전 적용하지 않고, 1~3개의 광원·산란 패턴을 합성합니다.
+전체 MOT 2,000영상·397,688프레임의 약/중/강 생성을 시작하는 새 실험에 사용합니다.
+`generate_flare7kstar.py`는 오프라인 DPT 추론과 영상용 시간 처리를 제공합니다.
+공식 코드가 공개되지 않아 논문 수식의 재구현이며, 자동 지표와 사람의 시각 승인을 구분합니다.
+OpenAI 또는 외부 모델 API를 호출하지 않습니다.
+
 2026-10-31 추가: **Glare Eligibility Filter**는 생성 전에 원본 영상의 광원 조건을 별도로
 검사합니다. 전체 BDD100K MOT2,000영상은1fps후보 조사→후보 구간5fps추적 경로를 사용합니다.
 VERIFIED/CONTROLLED/UNCERTAIN/INELIGIBLE와 실제 검사한 구간, 원본SHA, 광원ID·종류·광도·
