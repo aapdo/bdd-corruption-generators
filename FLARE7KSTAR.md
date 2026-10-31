@@ -96,3 +96,17 @@ memory was 2,934/4,922 MiB. Batch8 reserved 10,114 MiB, exceeding the predeclare
 9 GiB limit, so it was not selected. Rendered sample pixels were identical to
 batch1; depth maximum absolute differences were below 8e-8. These are bounded
 inference measurements, not complete dataset generation speed or quality scores.
+
+For numerically delicate frames, bicubic inverse-depth interpolation can contain
+nonpositive values. A change in the positive-quantile set can amplify small batch
+roundoff after inversion. The guarded path first performs the requested batch,
+then recomputes only those frames with the existing scalar model path. The model,
+FP32 precision, depth formula and equivalence tolerances stay fixed. The extra
+scalar calls are counted in `INFERENCE_SUMMARY.json`; throughput for these frames
+includes their additional work. The LAB3 integration uses this guard, while
+already running revisions remain frozen and are identified in the output metadata.
+
+The three-node continuation partitions whole videos: retain the existing
+800-video allocation and split the remaining1,200 into four150-video tasks on
+each of two additional nodes. Each node runs at most four one-GPU tasks with
+batch4. Split boundaries never interrupt a video's temporal flare state.

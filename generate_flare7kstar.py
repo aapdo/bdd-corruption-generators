@@ -10,6 +10,7 @@ import numpy as np
 from PIL import Image
 from recipes.flare7kstar import VideoFlare,compose,measurements,relative_depth,seed
 from recipes.inference_batching import ordered_batches
+from recipes.depth_precision import reconstruct_depths
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
@@ -42,12 +43,17 @@ def main():
         with Image.open(io.BytesIO(data))as image:rgb=np.asarray(image.convert('RGB'))
         if rgb.shape!=(720,1280,3):raise ValueError('Expected native MOT 1280x720')
         return data,rgb
-    def predict_many(images):
+    precision_counts=dict(negative_inverse_refinements=0)
+    def inverse_many(images):
         values=processor(images=list(images),return_tensors='pt')['pixel_values'].to(args.device,dtype=torch.float32)
         with torch.inference_mode():
             inverse=model(pixel_values=values).predicted_depth
             inverse=torch.nn.functional.interpolate(inverse.unsqueeze(1),size=images[0].shape[:2],mode='bicubic',align_corners=False)[:,0].cpu().numpy()
-        return [relative_depth(value)for value in inverse]
+        return inverse
+    def predict_many(images):
+        result,count=reconstruct_depths(images,inverse_many(images),lambda image:inverse_many([image])[0])
+        precision_counts['negative_inverse_refinements']+=count
+        return result
     with (args.output/'FRAMES.jsonl').open('x')as ledger:
         for index,frame,data,rgb,depth in ordered_batches(manifest['frames'],reader,predict_many,args.batch_size):
             if renderer is None:renderer=VideoFlare(manifest['video_id'],bank,args.patterns)
@@ -57,5 +63,7 @@ def main():
                 target.parent.mkdir(exist_ok=True);Image.fromarray(result).save(target,quality=95,subsampling=0)
                 variants[level]=dict(file=str(target.relative_to(args.output)),sha256=hashlib.sha256(target.read_bytes()).hexdigest(),metrics=measurements(rgb,result))
             ledger.write(json.dumps(dict(frame_index=index,source_sha256=hashlib.sha256(data).hexdigest(),metadata=metadata,variants=variants,API_calls=0,human_reviewed=False))+'\n')
+    with(args.output/'INFERENCE_SUMMARY.json').open('x')as f:
+        json.dump(dict(precision_counts,batch_size=args.batch_size,precision_policy='nonpositive_interpolated_inverse_single_recompute',API_calls=0),f,indent=2)
 
 if __name__=='__main__':main()
