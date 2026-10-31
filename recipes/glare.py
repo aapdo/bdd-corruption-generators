@@ -1,8 +1,32 @@
 """Measured source bloom or explicitly controlled off-frame sun veiling."""
 import numpy as np
 import cv2
+import hashlib
 from baseline_render import srgb_to_linear,linear_to_uint8
 from emitter import select_sources,LampTracker,detect_emitter
+
+
+def render_from_eligibility(rgb,decision,level,allow_controlled=False):
+    if decision.get('rgb_sha256')!=hashlib.sha256(rgb.tobytes()).hexdigest():raise ValueError('Eligibility belongs to different RGB')
+    status=decision.get('status');sources=[]
+    if status=='VERIFIED':
+        for c in decision.get('qualified_sources',[]):
+            if not all(c.get(k)is True for k in ['photometric_pass','geometry_pass','temporal_pass']):raise ValueError('Incomplete source eligibility evidence')
+            sources.append(dict(type=c['type'],xy=c['xy'],radius=c['radius'],color=c['color'],radiance=c['radiance'],verified=True,
+                source_id=c['source_id'],verification_scope=decision.get('verification_scope')))
+        if not sources:raise ValueError('No qualified sources in VERIFIED decision')
+    elif status=='CONTROLLED'and allow_controlled:
+        from glare_eligibility import classify_glare_eligibility
+        scene=decision.get('scene',{})
+        if classify_glare_eligibility(scene,[])['status']!='CONTROLLED':raise ValueError('Unsupported controlled solar assumption')
+        direction=scene['sun_direction_xy'];h,w=rgb.shape[:2]
+        sources=[dict(type='controlled_off_frame_sun',xy=[direction[0]*w,direction[1]*h],color=[1.,.92,.78],radius=.6*max(h,w),
+            radiance=1.,verified=False,assumed_sun_source=True,assumption_color_is_controlled=True)]
+    else:raise ValueError('Glare eligibility must be VERIFIED or explicitly approved CONTROLLED')
+    out,q=render_glare(rgb,sources,level)
+    q.update(source_eligibility=status,source_eligibility_reason=decision['reason'],verification_scope=decision.get('verification_scope'),
+        manual_source_audit_required=True,render_quality='UNASSESSED',task_relevance='UNASSESSED',training_release_ready=False)
+    return out,q
 
 
 def sources_for_frame(rgb,light,reviewed_anchor=None,allow_controlled_sun=False):

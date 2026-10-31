@@ -14,6 +14,7 @@ def main():
     p.add_argument('--bbox',type=float,nargs=4,help='Emitter candidate box in ORIGINAL coordinates; does not imply verification')
     p.add_argument('--source-type',choices=['tail_light','headlight','streetlight'])
     p.add_argument('--source-record',type=Path,help='Explicit identity and adjacent-frame tracking evidence JSON')
+    p.add_argument('--eligibility',type=Path,help='Glare frame decision or video manifest from the separate source filter')
     p.add_argument('--verified-by-user',action='store_true',help='Explicitly confirm source identity; tracking is still independently required')
     p.add_argument('--verified-sky',type=Path,help='Explicitly verified aligned boolean sky NPY; unknown depth alone is not sky')
     p.add_argument('--scene-haze-beta-max',type=float,default=.004)
@@ -26,7 +27,7 @@ def main():
     import cv2
     from appearance import lighting_profile,lowlight_linear,fog_scene
     from motion import target_blur,TemporalExposureRenderer
-    from glare import sources_for_frame,render_glare
+    from glare import sources_for_frame,render_glare,render_from_eligibility
     from snow_scene import SceneSnowRenderer
     from input_validation import aligned_depth,aligned_mask
     from sample_io import write_sample
@@ -50,19 +51,15 @@ def main():
             if a.temporal_exposure_ms is None:out,q=target_blur(rgb,f['flow'],f['confidence'],a.level,a.video,K)
             else:out,q=TemporalExposureRenderer(K,a.temporal_exposure_ms,a.video).render(rgb,f['flow'],f['confidence'],a.timestamp_s)
     elif a.type=='Glare':
-        anchor=json.loads(a.source_record.read_text())if a.source_record else None
-        if anchor is not None:
-            if anchor.get('coordinate_space')!='output_640x360':raise ValueError('Source record must declare coordinate_space=output_640x360')
-            if anchor.get('image_sha256')!=__import__('hashlib').sha256(a.image.read_bytes()).hexdigest():raise ValueError('Source evidence belongs to a different image')
-        if a.bbox and anchor is not None:raise ValueError('Use --source-record or --bbox, not both')
-        if a.bbox:
-            if not a.source_type:raise ValueError('--bbox requires explicit --source-type')
-            box=np.asarray(a.bbox)*[640/raw.shape[1],360/raw.shape[0],640/raw.shape[1],360/raw.shape[0]]
-            anchor=dict(source_type=a.source_type,verified_by_user=a.verified_by_user,bbox=box.tolist(),tracking={})
-        sources=sources_for_frame(rgb,light,anchor,allow_controlled_sun=a.controlled)
-        if not sources:raise ValueError('INELIGIBLE: no supported source or daylight sun; no image written')
-        if any(not s['verified']for s in sources)and not a.controlled:raise ValueError('Unverified light requires explicit --controlled')
-        out,q=render_glare(rgb,sources,a.level)
+        if not a.eligibility:raise ValueError('Separate --eligibility decision required before Glare synthesis')
+        if a.bbox or a.source_record or a.verified_by_user or a.source_type:raise ValueError('Legacy direct-source flags are replaced by the eligibility record')
+        decision=json.loads(a.eligibility.read_text())
+        if 'frames'in decision:
+            matches=[r for r in decision['frames']if r['frame_index']==a.frame]
+            if len(matches)!=1:raise ValueError('Exactly one eligibility record for --frame is required')
+            decision=matches[0]
+        if decision.get('native_sha256')!=__import__('hashlib').sha256(a.image.read_bytes()).hexdigest():raise ValueError('Eligibility source image SHA differs')
+        out,q=render_from_eligibility(rgb,decision,a.level,allow_controlled=a.controlled)
     else:
         if not a.controlled:raise ValueError('Static Snow camera assumption requires --controlled')
         renderer=SceneSnowRenderer(a.seed,d.shape,K,light,scene_haze_beta_max=a.scene_haze_beta_max)

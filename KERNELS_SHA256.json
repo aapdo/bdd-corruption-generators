@@ -2,10 +2,10 @@
   "files": {
     ".gitignore": "9d9d5dbb78e06978f88e25fc2c38da508750420866f4d2f6b6afc37e2c77a7b1",
     "EXTERNAL_ASSETS.json": "d2d460d2ed0a2f3041ccab4081793f81406e6c49fc01b743a4df86c8a890a677",
-    "README.md": "882dbd7018919dfaf1db096fc4e07ee8922dc37a426d634c1daeff4526002daf",
+    "README.md": "dacbbc1e7a3d028df739753092c3131ae4bf9dbddfe8b1a9ec287e59b023642c",
     "SEVERITY.json": "6a83ba8a75683c32099c1b2cb59af12217f3fa8478ab3ba532c849535c4fccd1",
     "THIRD_PARTY_NOTICES.md": "8531a2fd2ca813fee3f351b8add1bad1aad42f609ad5b91cc3d893826a574a19",
-    "generate.py": "bacff8183311515dcb508a11e8e3b277dda305f4f2be3182c0866fa0bf57eada",
+    "generate.py": "f189c2f80ba887fdec50fe9e1896089fa3ee49ba08ce59854dff7408cd944e12",
     "rain_runtime/rain_backend.py": "a298ab1a97d7f9c9826dbd01ae4f6ccb2122bd5862b71f802b0fa32f4f418043",
     "rain_runtime/rain_binding.py": "1e4300538d6a59e761efd9fcc7d9c246afdec6ac3dc7c942103d4d43919a75b2",
     "rain_settings.json": "3cb4239b6a453804038d29055ed43821bcd1f426b66becd652ddba3a08d06f46",
@@ -16,7 +16,8 @@
     "recipes/common.py": "b8aaef84dc8a944e4eb6a103ac437b94f97382e1abc7e8f36bfe9fd9edbf546d",
     "recipes/emitter.py": "44f4fee3dd82f2f54a41ee71067b1a23e60396f8f1d3453ab9b8e57e12405700",
     "recipes/geometry.py": "8904c2ce76b0b723f39ef299c2e4e2c40cf6d472186828cc7ee8c08b8dd84f76",
-    "recipes/glare.py": "39c95c7fa31d3f3642bc04ada88f2944e89210b3ec182963b3fa46b9283b9023",
+    "recipes/glare.py": "3968d7035c4177a72f13c55fdb4de8a22622703b92e6051fa5e4228852f7b92a",
+    "recipes/glare_eligibility.py": "2cf0e14516f24a6cbe04c7af688e972244702518d316ec02ca20d9b2d1f0cf00",
     "recipes/input_validation.py": "f3459e12bcfcf02e6e7538d64a486bd6b3379cab8fafc9472a408edf7f88804c",
     "recipes/motion.py": "2cc8da02988e7081c90a680870abfdbf21ed0239a0890ca6d4670e2a6e326e5d",
     "recipes/motion_estimator.py": "3371f62fbec4f95edcf2de0d04182632b882ce751a23fa0f29804fc3491783fc",
@@ -29,9 +30,11 @@
     "recipes/snow_scene.py": "68048ef395d293ce841be66c007b5b8bc6ce865a6d379c780aae5b5b001b37f5",
     "recipes/wetness.py": "3f52ff667fa637fce7b040b044292a4800c5938b82694c671cd0c4f23958ff44",
     "requirements.txt": "9de5fe8641ba3c8d742ad28cbf007dfe3daa43af7f13c01406dc4fa0e8363b18",
+    "screen_glare.py": "7636e48b4b1e400f20e0041f7abaf576a4b9e2000df1634a2f3b221c358af516",
     "tests/conftest.py": "75b8d446a663a5f767695a6cf95cb6ab57bfeec347b70fad6a3a0084dbbe2c04",
+    "tests/test_glare_eligibility.py": "7d5a16dfe99671f53bc52a129f19a3b2a438341e1b53ce4100384453237fc96f",
     "tests/test_improved.py": "a7995772a10a0907aa6e7d4308ed4058849f9e166d831bad7aa81be925501b54",
     "tests/test_quality.py": "ec13b5255d2e4eb862b826a6254facfa357d42ba430e42be0a86519faca19db4"
   },
-  "schema": "public-generator-source-manifest-v2"
+  "schema": "public-generator-source-manifest-glare-eligibility-v1"
 }

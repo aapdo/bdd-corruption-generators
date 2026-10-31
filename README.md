@@ -1,5 +1,32 @@
 # BDD Corruption Generators
 
+2026-10-31 추가: **Glare Eligibility Filter**는 생성 전에 원본 영상의 광원 조건을 별도로
+검사합니다. 전체 BDD100K MOT2,000영상은1fps후보 조사→후보 구간5fps추적 경로를 사용합니다.
+VERIFIED/CONTROLLED/UNCERTAIN/INELIGIBLE와 실제 검사한 구간, 원본SHA, 광원ID·종류·광도·
+기하·추적 근거를 기록합니다. VERIFIED는 **보정되지 않은 시작 규칙의 자동 통과**이며
+확률·실제 방사휘도·수작업 승인·렌더 품질·학습 승인이 아닙니다. 음성1fps사이 구간을 전수
+검사로 표시하지 않습니다. 차량 주석 없는test는 차량등을 자동 승인하지 않습니다.
+
+`recipes/glare_eligibility.py`가 독립 필터입니다. 밝은 하늘이나 주간 속성만으로 가정 태양을
+허용하지 않습니다. 가정 태양에는 외부 확인 하늘·방향 신뢰 근거·명시적 승인이 모두 필요합니다.
+신호등/가로등용 semantic detector는 초기 경로에 포함하지 않아 미지 후보는UNCERTAIN입니다.
+임계값은 정책에 고정된 초기값이며 일부 수작업 표본과 대조하는 보정은 남아 있습니다.
+
+```bash
+python screen_glare.py --manifest clip_frames.json --output clip_eligibility.json
+python generate.py --type Glare --image frame.jpg --frame 100 --level .5 \
+  --eligibility clip_eligibility.json --output outputs/glare.jpg
+```
+
+`clip_frames.json`은 `video_id`, 선택적 공식 `attributes`, 시간순 `frames`를 담습니다.
+각 frame은 `path`,0기반5fps `frame_index`,`timestamp_s`,선택적 `objects` 목록입니다.
+객체는 `track_id`,`category`,`bbox`(원본xyxy),boolean `occluded`/`truncated`를 사용합니다.
+주석이 없으면 빈 목록을 사용합니다. CLI는 연속5fps프레임을 검사하는 예제입니다.
+대규모1fps→5fps작업·사이트에는 원본 영상 분할을 유지하고 모델 평가/학습을 추가하지 않습니다.
+새 Glare CLI에는 SHA가 맞는 적합성 결과가 필수이며, 부적격/불확실 프레임에 가짜 태양이나
+원본 대체 이미지를 생성하지 않습니다. CONTROLLED 생성은 추가로 `--controlled`가 필요합니다.
+현재 사이트 판정 작업은 생성 전 검사이며 Glare 이미지 렌더링은 수행하지 않습니다.
+
 Rain · Fog · LowLight · MotionBlur · Glare · Snow의 CPU 연구용 생성 코드입니다.
 Shadow는 제외합니다. 2026-10-31 R2는 소스 감사에서 확인된 설정·광원·운동·저장 오류를
 수정하고 **생성 완료와 학습 승인**을 분리합니다. API 키·개인 서버·학습 가중치 없이 커널을
@@ -76,19 +103,16 @@ Flow NPZ는640×360×2 유한 실수 `flow`와640×360 boolean `confidence`를 �
 묶습니다. 다른 램프 위치로 추적 근거를 옮겨 사용할 수 없습니다. 초기화는 추적 통과가 아닙니다.
 
 ```bash
-python generate.py --type Glare --image frame.jpg --level .5 \
-  --bbox 700 340 712 352 --source-type tail_light --verified-by-user --controlled --output glare.jpg
-# 확인된 신원·현재 광도·추적 기록을 모두 제공하는 별도 경로
-python generate.py --type Glare --image frame.jpg --level .5 --source-record source.json --output glare.jpg
+python screen_glare.py --manifest clip_frames.json --output clip_eligibility.json
+python generate.py --type Glare --image frame.jpg --frame 100 --level .5 --eligibility clip_eligibility.json --output glare.jpg
 ```
 
-`--bbox`는 원본 좌표입니다. `--verified-by-user`는 신원 확인만 뜻하며 추적을 대신하지 않습니다.
-`source.json`은 `coordinate_space="output_640x360"`, 원본 파일의 `image_sha256`,
-`source_type`, `bbox`, `track_id`, 신원 근거와 실제 `LampTracker.observe()`가 만든 `tracking`을 담습니다.
-처리 RGB 추적 hash는 `rgb.tobytes()`의 SHA입니다.
+이전R2의 `--bbox`/`--source-record` 직접 합성 경로는 새 CLI에서 적합성 결과로 대체했습니다.
+기존 낮은 수준의 신원·추적 커널은 이전 재현을 위해 남아 있습니다. 새 결과는 원본 파일SHA와
+640×360처리RGB의 `rgb.tobytes()` SHA를 모두 확인하고 적격 광원만 합성합니다.
 
-`--controlled`는 근거가 부족한 광원 합성을 명시적으로 허용합니다. 실제 램프가 없을 때
-태양 가정은 주간·반복된 하늘 후보 조건을 통과해야 합니다. 야간/터널의 무광원 장면은
+새 경로의 `--controlled`는 필터가 외부 하늘·태양 방향·명시 승인 근거로 CONTROLLED를
+반환한 경우에만 합성을 허용합니다. 밝은 하늘·주간 속성만으로 허용하지 않습니다. 야간/터널의 무광원 장면은
 `INELIGIBLE`로 거부하며 가짜 태양이나 원본 대체 이미지를 저장하지 않습니다.
 태양 방향은 같은 영상의 고정 프로파일을 따릅니다. 현재 분류는 추정값이며 실제 태양 관측이 아닙니다.
 
