@@ -58,8 +58,9 @@ Create a manifest with a `video_id` and time-ordered `frames: [{"path": ...}]`.
 
 ```bash
 python generate_flare7kstar.py --manifest clip.json --patterns /external/flare-bank \
-  --model /external/dpt-hybrid-midas --output outputs/clip --device cuda
+  --model /external/dpt-hybrid-midas --output outputs/clip --device cuda --batch-size 4
 python -m unittest discover -s tests -p test_flare7kstar.py
+python -m unittest discover -s tests -p test_inference_batching.py
 ```
 
 In managed environments GPU allocation belongs to the site's scheduler. The
@@ -73,3 +74,25 @@ CPU tests cover inverse-depth interpretation, BAM inverse-square and cosine
 factors, zero-strength identity, severity monotonicity, deterministic replay and
 conversion of flow translation to native coordinates. These are implementation
 checks; they do not establish that every generated video looks realistic.
+
+The batch path supports 1, 4 and 8 frames with one bounded lookahead batch.
+Depth inference is batched; the flare renderer still receives frames in temporal
+order, including the final shorter batch. Per-video state is reset at clip
+boundaries. Batch equivalence and peak memory are checked on the actual GPU
+before project use. Depth throughput and complete JPEG generation throughput
+are different measurements: CPU pattern composition and encoding can dominate.
+
+The project transition preserves complete videos with verified TAR/frame/detail
+SHA256s. Incomplete videos restart from frame zero in a new attempt; old partial
+files and logs remain. Each output records its source revision and inference
+batch size. This is a continuation at video boundaries, not an exact resume
+inside an unfinished frame sequence. No model or floating-point precision
+change is introduced by batching.
+
+The bounded RTX 2080 Ti qualification selected batch4. On eight fixed frames
+(three timed repetitions), depth inference measured 14.33 fps at batch1,
+16.57 fps at batch4, and 16.87 fps at batch8. Batch4's peak allocated/reserved
+memory was 2,934/4,922 MiB. Batch8 reserved 10,114 MiB, exceeding the predeclared
+9 GiB limit, so it was not selected. Rendered sample pixels were identical to
+batch1; depth maximum absolute differences were below 8e-8. These are bounded
+inference measurements, not complete dataset generation speed or quality scores.
