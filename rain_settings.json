@@ -1,113 +1,12 @@
 {
-  "blur_max_interval_fraction": 0.15,
-  "blur_max_pixels": 20,
-  "blur_samples": 9,
-  "depth": "existing_DA_V2_metric_outdoor_small_FP32_camera_z_estimate",
-  "depth_metric_accuracy_verified": false,
-  "expected_comparison_sheets": 240,
-  "expected_condition_slots": 1680,
-  "expected_image_slots": 1720,
-  "expected_native_images": 40,
-  "flow": "CPU_DIS_bidirectional_same_field_for_all_levels",
-  "frames_per_video": 5,
-  "glare": "per_representative_frame_Sol_reviewed_RGB_anchor_same_video_pattern_and_fixed_optics",
-  "intrinsics": "assumed_native_f900_at1280x720",
-  "invalid_geometry": "explicit_hold_without_static_pose_or_speed_fallback",
-  "jpeg_quality": 95,
-  "jpeg_subsampling": 0,
-  "levels": {
-    "Fog": [
-      0.00375,
-      0.005,
-      0.0075,
-      0.01,
-      0.015,
-      0.03,
-      0.06
-    ],
-    "Glare": [
-      0.1,
-      0.25,
-      0.4,
-      0.5,
-      0.75,
-      1.0,
-      1.5
-    ],
-    "LowLight": [
-      -0.5,
-      -0.75,
-      -1.0,
-      -1.5,
-      -2.0,
-      -3.0,
-      -4.0
-    ],
-    "MotionBlur": [
-      2,
-      5,
-      8,
-      10,
-      15,
-      20,
-      30
-    ],
-    "Rain": [
-      5,
-      15,
-      25,
-      50,
-      75,
-      100,
-      200
-    ],
-    "Snow": [
-      0.1,
-      0.25,
-      0.4,
-      0.5,
-      0.65,
-      0.8,
-      1.0
-    ]
-  },
-  "lowlight_noise_rule": "existing_variance_rule_s_equals_abs_EV_over_3_extended_to_4EV_shared_normal_sample",
-  "native_videos": 8,
-  "phase2_registered": false,
-  "rain_camera_lookat": [
-    1.5,
-    1.5,
-    -1.0
-  ],
-  "rain_camera_position": [
-    1.5,
-    1.5,
-    0.3
-  ],
-  "rain_exposure_ms": 3,
-  "rain_f_number": 6.0,
-  "rain_focal_mm": 4.0,
-  "rain_fps": 5,
-  "rain_gain": 20,
-  "rain_pixel_um": 4.4444444444,
+  "schema": "rain-runtime-only-v1",
+  "levels": {"Rain": [5, 15, 25, 50, 75, 100, 200]},
   "rain_simulator_seed": 7301,
-  "schema": "bdd-six-type-seven-level-static-sweep-v1",
-  "seed": 7301,
-  "severities_final": false,
-  "shadow_included": false,
-  "shape": [
-    360,
-    640
-  ],
-  "snow": "persistent_world_particles_nested_activation_same_state_for_seven_levels",
-  "temporal_review": "unassessed_static_phase1",
-  "training_release_ready": false,
-  "units": {
-    "Fog": "beta",
-    "Glare": "light multiplier",
-    "LowLight": "EV",
-    "MotionBlur": "ms; cap20px",
-    "Rain": "mm/h; 3ms",
-    "Snow": "active fraction"
-  }
+  "rain_camera_position": [1.5, 1.5, 0.3],
+  "rain_camera_lookat": [1.5, 1.5, -1.0],
+  "rain_pixel_um": 4.4444444444,
+  "rain_exposure_ms": 3,
+  "depth_metric_accuracy_verified": false,
+  "full_video_temporal_qualified": false,
+  "training_release_ready": false
 }
