@@ -64,7 +64,7 @@ python -m unittest discover -s tests -p test_flare7kstar.py
 
 In managed environments GPU allocation belongs to the site's scheduler. The
 project run uses source/config hashes, one-GPU qualification before bulk execution,
-two sequential archive lanes, single-execution locks and per-attempt process/log
+four sequential archive lanes (one GPU per task), single-execution locks and per-attempt process/log
 records. There are no automatic model retries or periodic agent monitors.
 The private project wrapper additionally writes per-video TARs, member offsets,
 source/variant SHA256s and five Native/weak/middle/strong comparison timestamps.
