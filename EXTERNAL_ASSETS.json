@@ -1,0 +1,17 @@
+{
+  "renderer_revision": "0a9d8ca739d71d4b09f61567c6f6cea94a79868e",
+  "particle_binary_revision": "6a130aa7294dd980940416e8e0b21fef7112efaa",
+  "assets": [
+    {
+      "bytes": 5369064,
+      "sha256": "cf8b55a27c1e7e03608c00d2a82acea33119ba6ed0aeeedfa64f0fe9f78aee72",
+      "url": "https://codeload.github.com/astra-vision/rain-rendering/zip/0a9d8ca739d71d4b09f61567c6f6cea94a79868e"
+    },
+    {
+      "bytes": 53697384,
+      "sha256": "b996db425aa28fee6abda3163fb4d027587bc59e3909daa45da5f495f419fd9d",
+      "url": "https://cave.cs.columbia.edu/old/databases/rain_streak_db/databases.zip"
+    }
+  ],
+  "generator_py_sha256": "03c736fcdcabcd0902a06101709b7e68c49d9f25bf283e79048758c7b818a68a"
+}

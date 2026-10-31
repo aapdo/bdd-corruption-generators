@@ -1,0 +1,28 @@
+{
+  "files": {
+    ".gitignore": "9d9d5dbb78e06978f88e25fc2c38da508750420866f4d2f6b6afc37e2c77a7b1",
+    "EXTERNAL_ASSETS.json": "d2d460d2ed0a2f3041ccab4081793f81406e6c49fc01b743a4df86c8a890a677",
+    "README.md": "a5f3a0e650687f6a8d1a01104250774f998701e108e9ae68782efda648ce2464",
+    "SEVERITY.json": "6a83ba8a75683c32099c1b2cb59af12217f3fa8478ab3ba532c849535c4fccd1",
+    "THIRD_PARTY_NOTICES.md": "8531a2fd2ca813fee3f351b8add1bad1aad42f609ad5b91cc3d893826a574a19",
+    "generate.py": "2ba4f3a726fdaaf8ca85d90618ac65b919e4d542a04f2c232af1ee371f27b47d",
+    "rain_runtime/rain_backend.py": "0b3057036ae6bbf1292c7540b457cfbd847ab5d86324b530e2dee444c0fd91c9",
+    "rain_settings.json": "c0e2a59d553ae4a4fbbd05d2db1c3bb82ec63ded57f482565746ddab759b25be",
+    "rain_tools.py": "c6476e2e0d4b302b166354ce4b59260985bd7f69f21bd5ca2ef17fe16c136d1f",
+    "recipes/appearance.py": "693002a7129d946b97871ee191556e018a85b9a6cdd99cbc6b510084e7ea0a5f",
+    "recipes/baseline_render.py": "c263b645dbdd8c3c0bbd52285130f532884c55b9f1c0bfe6d6c619a6a55de88c",
+    "recipes/common.py": "b8aaef84dc8a944e4eb6a103ac437b94f97382e1abc7e8f36bfe9fd9edbf546d",
+    "recipes/geometry.py": "8904c2ce76b0b723f39ef299c2e4e2c40cf6d472186828cc7ee8c08b8dd84f76",
+    "recipes/glare.py": "a217a6f4cc4519bba3bae0df9ddd8d11fcad69008419e6922350df44967a105f",
+    "recipes/motion.py": "84166fc87a8a0c8a1ad585888cc669deb3040cc23b6e52bc3457aefde9f2c965",
+    "recipes/motion_estimator.py": "3371f62fbec4f95edcf2de0d04182632b882ce751a23fa0f29804fc3491783fc",
+    "recipes/rain_adapter.py": "bb9e182ac24b0bb3325cb5797e30f3c939ebf9e7abe30aa398238776e2ac54ae",
+    "recipes/render_ops.py": "5fb7067f02083a5e4d39c1c8c12b59947f0fdf00ed31819afc34331ca3fc63fb",
+    "recipes/snow.py": "542fe451a5bbf050f1960b6624c02307a0b6577fb5a8daa64b40f8992e0dd1b5",
+    "recipes/snow_scene.py": "eae6d0a9839ff1bba901d82994de2ce605c4240a2e09bc252e57bad16ce40cf3",
+    "requirements.txt": "9de5fe8641ba3c8d742ad28cbf007dfe3daa43af7f13c01406dc4fa0e8363b18",
+    "tests/conftest.py": "75b8d446a663a5f767695a6cf95cb6ab57bfeec347b70fad6a3a0084dbbe2c04",
+    "tests/test_improved.py": "8c38e8c0971fbc3c551060bb8d0d91cbddecd08a56aa18562ce7d7583dbb38b5"
+  },
+  "schema": "public-generator-source-manifest-v1"
+}
