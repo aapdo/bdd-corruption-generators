@@ -13,6 +13,11 @@ It generates first and records triage afterwards. The earlier source eligibility
 classifier remains available as a separate recipe and does not prefilter this run.
 No OpenAI or other model API is called. DPT runs locally without training.
 
+The experimental [source alignment and local-tracking extension](FLARE_ANCHORED.md)
+addresses unsupported source placement for BDD. Its small pilot uses visually
+checked reference positions; the original random-placement recipe remains
+available with its original behavior.
+
 ## Method and explicit choices
 
 - Use all 5,000 official Flare7K scattering `Compound_Flare` / `Light_Source` pairs.
