@@ -139,7 +139,8 @@ def lamp_candidates(rgb,vehicle):
         # Side lamps and an upper central red brake lamp; exclude plate/roof/wheels.
         side=nx<=.40 or nx>=.60
         central_brake=is_red and .40<nx<.60 and .12<ny<.4
-        if not(.18<=ny<=.78 and side)and not central_brake:continue
+        plausible_height=(.25<=ny<=.78)if is_red else(.28<=ny<=.72)
+        if not(plausible_height and side)and not central_brake:continue
         rows.append(dict(xy=[px+x0,py+y0],relative_xy=[nx,ny],radius=radius,area=area,
             color=value[cy,cx].mean(axis=0).tolist(),peak=peak,contrast=contrast,
             score=float(contrast*np.sqrt(area)*peak),is_red=is_red,paired=False,
@@ -208,9 +209,24 @@ def automatic_vehicle_sources(images,detections,old_rows,classifier,report_progr
         frames.append(dict(vehicle_boxes=boxes,vehicle_candidates=tracked))
         for source in tracked:groups[source['track_id']].append((i,source))
         if report_progress and i%20==0:report_progress('vehicle_relative_lamp_tracking',frame=i)
+    vehicle_groups=defaultdict(list)
+    for i,frame in enumerate(frames):
+        for vehicle in frame['vehicle_boxes']:vehicle_groups[vehicle['vehicle_id']].append((i,vehicle))
+    context_keys=[];context_queries=[]
+    for key,rows in vehicle_groups.items():
+        if len(rows)<3:continue
+        for j in sorted(set(np.linspace(0,len(rows)-1,3).round().astype(int).tolist())):
+            i,vehicle=rows[j];context_keys.append((key,i));context_queries.append((images[i],vehicle['box']))
+    context_results=[]
+    for start in range(0,len(context_queries),64):
+        context_results.extend(classifier.score_vehicle_boxes(context_queries[start:start+64]))
+        if report_progress:report_progress('whole_vehicle_context_check',queries_done=min(start+64,len(context_queries)),total_queries=len(context_queries))
+    context_decisions=defaultdict(list)
+    for (key,i),score in zip(context_keys,context_results):context_decisions[key].append(dict(frame=i,**score))
+    supported_vehicles={key for key,rows in context_decisions.items()if sum(r['accepted']for r in rows)>=2}
     queries=[];keys=[]
     for key,rows in groups.items():
-        if len(rows)<3:continue
+        if len(rows)<3 or rows[0][1]['vehicle_id']not in supported_vehicles:continue
         for j in sorted(set(np.linspace(0,len(rows)-1,3).round().astype(int).tolist())):
             i,source=rows[j];keys.append((key,i));queries.append((images[i],source))
     scores=[]
@@ -221,7 +237,9 @@ def automatic_vehicle_sources(images,detections,old_rows,classifier,report_progr
     for (key,i),score in zip(keys,scores):
         source=next(s for frame,s in groups[key]if frame==i)
         generic=score['positive_cosine']>=.21 and score['margin']>=.002 and score['minimum_scale_margin']>=-.025
-        single=score['positive_type']in ['headlight','taillight','specular_glint'] and score['margin']>=.008 and score['center_delta']>=-.01
+        # Coarse nearest-text labels are unreliable for tiny lamps. Vehicle context,
+        # current compact peak and lamp geometry establish the source association.
+        single=score['margin']>=.008 and score['center_delta']>=-.01
         supported=bool(generic and(source['paired']or single))
         decisions[key].append(dict(frame=i,score=score,supported=supported,paired=source['paired']))
     accepted={key for key,rows in decisions.items()if sum(s['supported']for s in rows)>=2}
@@ -252,6 +270,7 @@ def automatic_vehicle_sources(images,detections,old_rows,classifier,report_progr
         vehicle_light_frames=sum(any(s['source_group']=='vehicle'for s in f['active_sources'])for f in output),
         mixed_source_frames=sum({s['source_group']for s in f['active_sources']}=={'vehicle','environment'}for f in output),
         accepted_vehicle_lamp_tracks=sorted(accepted),vehicle_lamp_track_candidates=len(groups),
+        supported_vehicle_context_ids=sorted(supported_vehicles),whole_vehicle_context_decisions=dict(context_decisions),
         maximum_simultaneous_sources=max((len(f['active_sources'])for f in output),default=0),
         policy=POLICY,manual_anchors_used=False,annotation_boxes_used=False)
     return output,summary,dict(decisions)

@@ -19,18 +19,23 @@ weight load before managed GPU execution. Models and patterns are external asset
 2. Find compact white/red peaks within each detected vehicle. Check local
    brightness, area, plausible lamp position and optional opposite-side pairing.
    Plate-center, roof and wheel regions are excluded by the disclosed rules.
-3. Associate peaks in normalized vehicle coordinates. Missing current peaks
+3. Verify whole detected-vehicle crops with the same local CLIP. Compare vehicle
+   descriptions to fences, railings, shopfronts, buildings and empty roadside
+   context. At least two of three temporal crops must pass cosine0.20 and
+   positive-minus-negative margin0.005. This reduces detector false vehicles.
+4. Associate peaks in normalized vehicle coordinates. Missing current peaks
    immediately stop the effect; reappearance requires confirmation. A track
    needs three observations and two consecutive current observations.
-4. Score three temporal representatives with the local CLIP classifier.
+5. Score three temporal representatives with the local CLIP classifier.
    At least two need photometric/geometry/semantic support. These permissive
    pilot thresholds are explicit in `recipes/flare_vehicle_sources.py`.
-5. Keep up to four vehicle lamps, balanced across vehicles, plus two supported
+6. Keep up to four vehicle lamps, balanced across vehicles, plus two supported
    environmental sources. Rank within groups by observed contrast, area and
    peak, with modest continuity. CLIP margins control admission, not brightness.
 
 ```python
 from recipes.flare_vehicle_sources import LocalVehicles, automatic_vehicle_sources
+from recipes.flare_vehicle_context import VehicleAwareClip
 from recipes.flare_vehicle_anchored import AnchoredFlare
 from recipes.flare_vehicle_impact import LEVELS
 from recipes.flare7kstar import compose
@@ -41,7 +46,7 @@ detected = []
 for start in range(0, len(frames), 2):
     detected.extend(detector.predict(frames[start:start+2]))
 detector.close()
-# local_clip_classifier is loaded after the detector is released.
+local_clip_classifier = VehicleAwareClip(local_clip_asset_receipt, scheduler_gpu_request)
 rows, summary, decisions = automatic_vehicle_sources(
     frames, detected, previous_frame_records, local_clip_classifier)
 local_clip_classifier.close()
@@ -64,9 +69,14 @@ all three gains. Preserve original/source overlays and every rejected track.
 python -m unittest discover -s tests -p test_flare_vehicle_sources.py
 ```
 
-Five CPU tests check side-lamp geometry/plate rejection, moving vehicle-relative
+Seven CPU tests check side-lamp geometry/plate rejection, moving vehicle-relative
 identity, disappearance/reconfirmation, separate source quotas and complete
-decision-record JSON serialization. Coordinates use standard Python integers.
+decision-record JSON serialization, fence-context rejection and retention of
+photometrically supported lamps despite coarse text-type disagreement.
+Coordinates use standard Python integers. White lamp candidates use normalized
+height0.28–0.72 to reduce roof reflections and wheel highlights. A nearest text
+such as traffic-light or sign alone cannot override supported vehicle context,
+compact current source evidence and plausible lamp geometry.
 An initial pilot failed at export because NumPy integers were left in boxes;
 the corrected revision preserves that failure and reuses its600 verified
 detector predictions. Actual

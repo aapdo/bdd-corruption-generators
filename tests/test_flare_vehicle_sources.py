@@ -45,6 +45,7 @@ class VehicleLightTests(unittest.TestCase):
     def test_complete_automatic_decisions_can_be_saved(self):
         rgb=np.zeros((120,200,3),np.uint8);rgb[42:48,39:45]=255;rgb[42:48,115:121]=255
         class Classifier:
+            def score_vehicle_boxes(self,queries):return [dict(accepted=True)for _ in queries]
             def score_queries(self,queries):
                 return [dict(positive_cosine=.3,margin=.04,minimum_scale_margin=.02,
                              positive_type='headlight',center_delta=.02)for _ in queries]
@@ -54,6 +55,29 @@ class VehicleLightTests(unittest.TestCase):
         json.dumps(dict(frames=rows,summary=summary,decisions=decisions),allow_nan=False)
         self.assertEqual(summary['vehicle_light_frames'],3)
         self.assertEqual(len(rows[-1]['active_sources']),2)
+
+    def test_fence_context_rejects_detector_false_vehicle(self):
+        rgb=np.zeros((120,200,3),np.uint8);rgb[42:48,39:45]=255;rgb[42:48,115:121]=255
+        class Classifier:
+            def score_vehicle_boxes(self,queries):return [dict(accepted=False)for _ in queries]
+            def score_queries(self,queries):return []
+        detections=[[dict(box=[20.,20.,140.,100.],score=.9,category=3)]for _ in range(4)]
+        old=[dict(tracking=dict(sources=[],semantic_candidates=[]))for _ in range(4)]
+        rows,summary,_=automatic_vehicle_sources([rgb]*4,detections,old,Classifier())
+        self.assertEqual(summary['vehicle_light_frames'],0)
+
+    def test_coarse_light_type_does_not_exclude_vehicle_lamp(self):
+        rgb=np.zeros((120,200,3),np.uint8);rgb[48:54,115:121]=255
+        class Classifier:
+            def score_vehicle_boxes(self,queries):return [dict(accepted=True)for _ in queries]
+            def score_queries(self,queries):
+                return [dict(positive_cosine=.3,margin=.04,minimum_scale_margin=.02,
+                             positive_type='traffic_light',center_delta=.02)for _ in queries]
+        detections=[[dict(box=[20.,20.,140.,100.],score=.9,category=3)]for _ in range(4)]
+        old=[dict(tracking=dict(sources=[],semantic_candidates=[]))for _ in range(4)]
+        rows,summary,_=automatic_vehicle_sources([rgb]*4,detections,old,Classifier())
+        self.assertEqual(summary['vehicle_light_frames'],3)
+        self.assertEqual(len(rows[-1]['active_sources']),1)
 
 
 if __name__=='__main__':unittest.main()
