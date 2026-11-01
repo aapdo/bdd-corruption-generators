@@ -1,5 +1,8 @@
 # Automatic local source classification and multi-source tracking
 
+For moving vehicle lamps selected alongside environmental lights, see
+[vehicle-associated source selection and tracking](FLARE_VEHICLE_SOURCES.md).
+
 For a CPU replay that broadens the same sources and measures vehicle contrast,
 see [the exploratory vehicle-impact comparison](GLARE_VEHICLE_IMPACT.md).
 
