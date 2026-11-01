@@ -15,3 +15,13 @@ The background-affine transport and temporal smoothing are video additions.
 Official Flare7K scattering patterns and Intel DPT-Hybrid model files are external
 assets; none are redistributed in this code repository. Flare7K data retains
 the S-Lab License 1.0 research terms. Intel's model card identifies Apache 2.0.
+
+# Wu daylight synthesis addition (2026-11-01)
+
+`recipes/flare_wu_day.py` ports the synthesis operators of Wu et al., ICCV 2021,
+Google Research `flare_removal/python/{synthesis,utils}.py`, pinned commit
+83f1e7b59e762648c953de751d31f75720683622. Copyright 2026 The Google Research
+Authors, Apache License 2.0; see licenses/Apache-2.0.txt. Modified to NumPy/OpenCV,
+fixed severity comparisons, visible-sun alignment and temporal tracking.
+Original captured/simulated PNG assets are external, Wu et al., CC BY 4.0, and
+are not redistributed in this repository. See docs/WU_DAYTIME.md.

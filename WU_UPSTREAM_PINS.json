@@ -1,0 +1,50 @@
+{
+  "commit": "83f1e7b59e762648c953de751d31f75720683622",
+  "files": {
+    "README.md": {
+      "url": "https://raw.githubusercontent.com/google-research/google-research/83f1e7b59e762648c953de751d31f75720683622/flare_removal/README.md",
+      "sha256": "1968fa55e83cfb34e4073145cdb37be0c216b9641406cdf22de34221caba098e",
+      "bytes": 7976
+    },
+    "python/synthesis.py": {
+      "url": "https://raw.githubusercontent.com/google-research/google-research/83f1e7b59e762648c953de751d31f75720683622/flare_removal/python/synthesis.py",
+      "sha256": "ede4f760f564cd12c554f02c3ae009807b0be91d84572098a3d4f9c3894a74eb",
+      "bytes": 6429
+    },
+    "python/data_provider.py": {
+      "url": "https://raw.githubusercontent.com/google-research/google-research/83f1e7b59e762648c953de751d31f75720683622/flare_removal/python/data_provider.py",
+      "sha256": "413134d32bc3c56bf9cb042148cf17330f3b3d88629745dd607c9880532c6c4a",
+      "bytes": 5993
+    },
+    "python/utils.py": {
+      "url": "https://raw.githubusercontent.com/google-research/google-research/83f1e7b59e762648c953de751d31f75720683622/flare_removal/python/utils.py",
+      "sha256": "6d10e333e5157147722364497a3551143dbfb2ccada04e4fbd5d8e5980bbfd64",
+      "bytes": 11610
+    },
+    "matlab/main.m": {
+      "url": "https://raw.githubusercontent.com/google-research/google-research/83f1e7b59e762648c953de751d31f75720683622/flare_removal/matlab/main.m",
+      "sha256": "4847b9a81aed4ac6fd1161d713c03c73bb97715a68bcf005186030e47fa4f6b5",
+      "bytes": 2604
+    },
+    "matlab/GetPsf.m": {
+      "url": "https://raw.githubusercontent.com/google-research/google-research/83f1e7b59e762648c953de751d31f75720683622/flare_removal/matlab/GetPsf.m",
+      "sha256": "0b7928a33a2226e4ad54d0fd6ce36352bd3c59566f0f5f7b9f0409a169dc1073",
+      "bytes": 2210
+    },
+    "matlab/RandomDirtyAperture.m": {
+      "url": "https://raw.githubusercontent.com/google-research/google-research/83f1e7b59e762648c953de751d31f75720683622/flare_removal/matlab/RandomDirtyAperture.m",
+      "sha256": "ad8cd137525ea6bb2a508112ffa66ac74c0375517e61be93c7b5bfbe74c04c03",
+      "bytes": 2530
+    },
+    "matlab/RandomSpectralResponse.m": {
+      "url": "https://raw.githubusercontent.com/google-research/google-research/83f1e7b59e762648c953de751d31f75720683622/flare_removal/matlab/RandomSpectralResponse.m",
+      "sha256": "fcf4947ea856e23553eda0f34aebc06ff9c78888faa4a32725cd1ef4488ad215",
+      "bytes": 1220
+    },
+    "matlab/GetDefocusPhase.m": {
+      "url": "https://raw.githubusercontent.com/google-research/google-research/83f1e7b59e762648c953de751d31f75720683622/flare_removal/matlab/GetDefocusPhase.m",
+      "sha256": "6f62a8496e4129e049af61840a3d001ce8354826e083a097942ee695e437fc5c",
+      "bytes": 1821
+    }
+  }
+}

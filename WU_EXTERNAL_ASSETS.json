@@ -1,0 +1,69 @@
+{
+  "files": [
+    {
+      "bytes": 524739,
+      "dtype": "uint8",
+      "generation": "1635548648694523",
+      "key": "lens-flare/simulated/aperture0192_blur03_crop01.png",
+      "kind": "simulated",
+      "license": "CC BY 4.0; Wu et al. ICCV2021",
+      "md5": "5f9639e27c430fdd8a21b52673e45cee",
+      "name": "simulated_aperture0192_blur03_crop01.png",
+      "proposed_origin": [
+        498.00140080546316,
+        311.65189984240936
+      ],
+      "public_url": "https://storage.googleapis.com/gresearch/lens-flare/simulated/aperture0192_blur03_crop01.png?generation=1635548648694523",
+      "sha256": "76557410bbe3e97d6fe22638afb13e2d9ead0528561ce4a186d77e5b4a56105a",
+      "shape": [
+        752,
+        1008,
+        3
+      ]
+    },
+    {
+      "bytes": 519640,
+      "dtype": "uint8",
+      "generation": "1635548675557723",
+      "key": "lens-flare/simulated/aperture0274_blur03_crop02.png",
+      "kind": "simulated",
+      "license": "CC BY 4.0; Wu et al. ICCV2021",
+      "md5": "3cde1f67734da053b4cef09dace06dfe",
+      "name": "simulated_aperture0274_blur03_crop02.png",
+      "proposed_origin": [
+        463.54111282843894,
+        492.53183925811436
+      ],
+      "public_url": "https://storage.googleapis.com/gresearch/lens-flare/simulated/aperture0274_blur03_crop02.png?generation=1635548675557723",
+      "sha256": "8883d561fc1387207ed408941b950e1d8e5c8420cf0d1f800216d01d08427bb6",
+      "shape": [
+        752,
+        1008,
+        3
+      ]
+    },
+    {
+      "bytes": 436457,
+      "dtype": "uint8",
+      "generation": "1635548202329855",
+      "key": "lens-flare/captured/frame_0571.png",
+      "kind": "captured",
+      "license": "CC BY 4.0; Wu et al. ICCV2021",
+      "md5": "1a007adf25fdeb84a2327e6763164fc6",
+      "name": "captured_frame_0571.png",
+      "proposed_origin": [
+        784.2108974358974,
+        167.8852564102564
+      ],
+      "public_url": "https://storage.googleapis.com/gresearch/lens-flare/captured/frame_0571.png?generation=1635548202329855",
+      "sha256": "97cc5b181f10f37ff2c0106f0101660e9354605310611735ce17526250f9ae08",
+      "shape": [
+        752,
+        1008,
+        3
+      ]
+    }
+  ],
+  "attribution": "Wu et al., ICCV 2021; CC BY 4.0",
+  "images_in_git": false
+}
