@@ -1,5 +1,8 @@
 # Automatic local source classification and multi-source tracking
 
+For a CPU replay that broadens the same sources and measures vehicle contrast,
+see [the exploratory vehicle-impact comparison](GLARE_VEHICLE_IMPACT.md).
+
 This experimental BDD extension removes the manually checked source coordinates
 used by the earlier anchored pilot. It uses a locally loaded CLIP ViT-B/32 for
 candidate classification, local optical flow for individual tracking, and the
