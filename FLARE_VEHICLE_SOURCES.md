@@ -64,8 +64,12 @@ all three gains. Preserve original/source overlays and every rejected track.
 python -m unittest discover -s tests -p test_flare_vehicle_sources.py
 ```
 
-Four CPU tests check side-lamp geometry/plate rejection, moving vehicle-relative
-identity, disappearance/reconfirmation and separate source quotas. Actual
+Five CPU tests check side-lamp geometry/plate rejection, moving vehicle-relative
+identity, disappearance/reconfirmation, separate source quotas and complete
+decision-record JSON serialization. Coordinates use standard Python integers.
+An initial pilot failed at export because NumPy integers were left in boxes;
+the corrected revision preserves that failure and reuses its600 verified
+detector predictions. Actual
 detector recall, lamp identity, reflections and visual realism need image review;
 the tests do not establish these accuracies. The pilot covers the same six
 train/dev clips with100 frames each. Labels are used only after rendering for

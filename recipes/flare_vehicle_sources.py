@@ -113,7 +113,7 @@ class VehicleTracker:
 
 
 def lamp_candidates(rgb,vehicle):
-    h,w=rgb.shape[:2];box=vehicle['box'];x0,y0,x1,y1=np.rint(box).astype(int)
+    h,w=rgb.shape[:2];box=vehicle['box'];x0,y0,x1,y1=map(int,np.rint(box))
     x0,y0=max(0,x0),max(0,y0);x1,y1=min(w,x1),min(h,y1)
     bw,bh=x1-x0,y1-y0
     if bw<18 or bh<14:return []

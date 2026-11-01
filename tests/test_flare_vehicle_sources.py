@@ -1,6 +1,7 @@
+import json
 import unittest
 import numpy as np
-from recipes.flare_vehicle_sources import VehicleTracker,LampTracker,lamp_candidates,select_sources
+from recipes.flare_vehicle_sources import VehicleTracker,LampTracker,lamp_candidates,select_sources,automatic_vehicle_sources
 
 
 class VehicleLightTests(unittest.TestCase):
@@ -10,6 +11,7 @@ class VehicleLightTests(unittest.TestCase):
         rgb[60:70,70:90]=255
         vehicle=dict(box=[20.,20.,140.,100.],vehicle_id=1)
         rows=lamp_candidates(rgb,vehicle)
+        json.dumps(rows,allow_nan=False)
         self.assertEqual(len(rows),2);self.assertTrue(all(s['paired']for s in rows))
         self.assertTrue(all(s['xy'][1]<50 for s in rows))
 
@@ -39,6 +41,19 @@ class VehicleLightTests(unittest.TestCase):
         self.assertEqual(len(chosen),6)
         self.assertEqual(sum(s['track_id'].startswith('v')for s in chosen),4)
         self.assertEqual(len({s['vehicle_id']for s in chosen if'vehicle_id'in s}),3)
+
+    def test_complete_automatic_decisions_can_be_saved(self):
+        rgb=np.zeros((120,200,3),np.uint8);rgb[42:48,39:45]=255;rgb[42:48,115:121]=255
+        class Classifier:
+            def score_queries(self,queries):
+                return [dict(positive_cosine=.3,margin=.04,minimum_scale_margin=.02,
+                             positive_type='headlight',center_delta=.02)for _ in queries]
+        detections=[[dict(box=[20.,20.,140.,100.],score=.9,category=3)]for _ in range(4)]
+        old=[dict(tracking=dict(sources=[],semantic_candidates=[]))for _ in range(4)]
+        rows,summary,decisions=automatic_vehicle_sources([rgb]*4,detections,old,Classifier())
+        json.dumps(dict(frames=rows,summary=summary,decisions=decisions),allow_nan=False)
+        self.assertEqual(summary['vehicle_light_frames'],3)
+        self.assertEqual(len(rows[-1]['active_sources']),2)
 
 
 if __name__=='__main__':unittest.main()
