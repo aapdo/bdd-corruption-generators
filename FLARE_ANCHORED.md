@@ -18,6 +18,9 @@ connected to these positions. Empty anchors are explicit negative controls.
 This is an offline experiment with a reference frame; it does not establish
 fully automatic or causal online source selection.
 
+The subsequent [automatic-source pilot](FLARE_AUTOMATIC.md) replaces these
+reference positions with local CLIP candidate scoring and multi-source selection.
+
 `recipes.flare_anchored.AnchoredFlare` subtracts the matching annotated light
 layer nonnegatively and protects the observed source center smoothly. The
 source's location, radius, color and brightness control the transformed pattern.
